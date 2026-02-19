@@ -1,4 +1,4 @@
-\name: Mirror to GitVerse
+name: Mirror to GitVerse-1
 
 on:
   push:
