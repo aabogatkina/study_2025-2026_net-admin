@@ -1,0 +1,280 @@
+---
+## Author
+author:
+  name:  Богаткина Алёна Александровна 
+  degrees: DSc
+  orcid: 0000-0002-0877-7063
+  email: kulyabov-ds@rudn.ru
+  affiliation:
+    - name: Российский университет дружбы народов
+      country: Российская Федерация
+      postal-code: 117198
+      city: Москва
+      address: ул. Миклухо-Маклая, д. 6
+
+## Title
+title: Отчет по Лабораторной работе №4
+subtitle: Администрирование Локальных Сетей 
+license: "CC BY"
+---
+
+# Цель работы
+
+Провести подготовительную работу по первоначальной настройке коммутаторов сети.
+
+# Задание
+
+Требуется сделать первоначальную настройку коммутаторов сети, представленной на схеме L1 (из лабораторной работы №3). Под первоначальной настройкой понимается указание имени устройства, его IP-адреса, настройка доступа по паролю к виртуальным терминалам и консоли, настройка удалённого доступа к устройству по ssh. При выполнении работы необходимо учитывать соглашение об именовании
+
+# Выполнение лабораторной работы
+
+## Построение сети
+
+В логической рабочей области Packet Tracer разместили коммутаторы и оконечные устройства согласно схеме сети L1 (из лабораторной работы №3) и соединили их через соответствующие интерфейсы ([рис. @fig-001])
+
+![Размещение коммутаторов и оконечных устройств согласно схеме сети L1](image/1.png){#fig-001 width=70%}
+
+## Настройка коммутаторов
+
+Используя типовую конфигурацию коммутатора, настроили все коммутаторы, изменяя название устройства и его IP-адрес согласно плану IP (см. табл. 3.2 в лабораторной работе №3)
+
+Провели настройку коммутатора msk-donskaya-aabogatkina-sw-1 ([рис. @fig-002]), ([рис. @fig-003]), ([рис. @fig-004]), ([рис. @fig-005]), ([рис. @fig-006]), ([рис. @fig-007]): 
+
+```
+Switch>enable
+Switch#configure terminal
+Switch(config)#hostname msk-donskaya-aabogatkina-sw-1
+msk-donskaya-aabogatkina-sw-1(config)#interface vlan2
+msk-donskaya-aabogatkina-sw-1(config-if)#no shutdown
+msk-donskaya-aabogatkina-sw-1(config-if)#ip address 10.128.1.2 255.255.255.0
+msk-donskaya-aabogatkina-sw-1(config-if)#exit
+msk-donskaya-aabogatkina-sw-1(config)#ip default-gateway 10.128.1.1
+msk-donskaya-aabogatkina-sw-1(config)#line vty 0 4
+msk-donskaya-aabogatkina-sw-1(config-line)#password cisco
+msk-donskaya-aabogatkina-sw-1(config-line)#login
+msk-donskaya-aabogatkina-sw-1(config-line)#exit
+msk-donskaya-aabogatkina-sw-1(config)#line console 0
+msk-donskaya-aabogatkina-sw-1(config-line)#password cisco
+msk-donskaya-aabogatkina-sw-1(config-line)#login
+msk-donskaya-aabogatkina-sw-1(config-line)#exit
+msk-donskaya-aabogatkina-sw-1(config)#enable secret cisco
+msk-donskaya-aabogatkina-sw-1(config)#service password-encryption
+msk-donskaya-aabogatkina-sw-1(config)#username admin privilege 1 secret cisco
+msk-donskaya-aabogatkina-sw-1(config)#ip domain-name donskaya.rudn.edu
+msk-donskaya-aabogatkina-sw-1(config)#crypto key generate rsa
+msk-donskaya-aabogatkina-sw-1(config)#line vty 0 4
+msk-donskaya-aabogatkina-sw-1(config-line)#transport input ssh
+msk-donskaya-aabogatkina-sw-1(config-line)#exit
+msk-donskaya-aabogatkina-sw-1(config)#exit
+msk-donskaya-aabogatkina-sw-1#write memory
+```
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-1 (1)](image/1-1.png){#fig-002 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-1 (2)](image/1-2.png){#fig-003 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-1 (3)](image/1-3.png){#fig-004 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-1 (4)](image/1-4.png){#fig-005 width=70%}
+
+![Просмотр конфигурации коммутатора msk-donskaya-aabogatkina-sw-1 (1)](image/1-5.png){#fig-006 width=70%}
+
+![Просмотр конфигурации коммутатора msk-donskaya-aabogatkina-sw-1 (2)](image/1-6.png){#fig-007 width=70%}
+
+Провели настройку коммутатора msk-donskaya-aabogatkina-sw-2 ([рис. @fig-008]), ([рис. @fig-009]), ([рис. @fig-010]), ([рис. @fig-011]), ([рис. @fig-012]), ([рис. @fig-013]): 
+
+```
+Switch>enable
+Switch#configure terminal
+Switch(config)#hostname msk-donskaya-aabogatkina-sw-2
+msk-donskaya-aabogatkina-sw-2(config)#interface vlan2
+msk-donskaya-aabogatkina-sw-2(config-if)#no shutdown
+msk-donskaya-aabogatkina-sw-2(config-if)#ip address 10.128.1.3 255.255.255.0
+msk-donskaya-aabogatkina-sw-2(config-if)#exit
+msk-donskaya-aabogatkina-sw-2(config)#ip default-gateway 10.128.1.1
+msk-donskaya-aabogatkina-sw-2(config)#line vty 0 4
+msk-donskaya-aabogatkina-sw-2(config-line)#password cisco
+msk-donskaya-aabogatkina-sw-2(config-line)#login
+msk-donskaya-aabogatkina-sw-2(config-line)#exit
+msk-donskaya-aabogatkina-sw-2(config)#line console 0
+msk-donskaya-aabogatkina-sw-2(config-line)#password cisco
+msk-donskaya-aabogatkina-sw-2(config-line)#login
+msk-donskaya-aabogatkina-sw-2(config-line)#exit
+msk-donskaya-aabogatkina-sw-2(config)#enable secret cisco
+msk-donskaya-aabogatkina-sw-2(config)#service password-encryption
+msk-donskaya-aabogatkina-sw-2(config)#username admin privilege 1 secret cisco
+msk-donskaya-aabogatkina-sw-2(config)#ip domain-name donskaya.rudn.edu
+msk-donskaya-aabogatkina-sw-2(config)#crypto key generate rsa
+msk-donskaya-aabogatkina-sw-2(config)#line vty 0 4
+msk-donskaya-aabogatkina-sw-2(config-line)#transport input ssh
+msk-donskaya-aabogatkina-sw-2(config-line)#exit
+msk-donskaya-aabogatkina-sw-2(config)#exit
+msk-donskaya-aabogatkina-sw-2#write memory
+```
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-2 (1)](image/2-1.png){#fig-008 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-2 (2)](image/2-2.png){#fig-009 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-2 (3)](image/2-3.png){#fig-010 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-2 (4)](image/2-4.png){#fig-011 width=70%}
+
+![Просмотр конфигурации коммутатора msk-donskaya-aabogatkina-sw-2 (1)](image/2-5.png){#fig-012 width=70%}
+
+![Просмотр конфигурации коммутатора msk-donskaya-aabogatkina-sw-2 (2)](image/2-6.png){#fig-013 width=70%}
+
+Провели настройку коммутатора msk-donskaya-aabogatkina-sw-3 ([рис. @fig-014]), ([рис. @fig-015]), ([рис. @fig-016]), ([рис. @fig-017]), ([рис. @fig-018]), ([рис. @fig-019]): 
+
+```
+Switch>enable
+Switch#configure terminal
+Switch(config)#hostname msk-donskaya-aabogatkina-sw-3
+msk-donskaya-aabogatkina-sw-3(config)#interface vlan2
+msk-donskaya-aabogatkina-sw-3(config-if)#no shutdown
+msk-donskaya-aabogatkina-sw-3(config-if)#ip address 10.128.1.4 255.255.255.0
+msk-donskaya-aabogatkina-sw-3(config-if)#exit
+msk-donskaya-aabogatkina-sw-3(config)#ip default-gateway 10.128.1.1
+msk-donskaya-aabogatkina-sw-3(config)#line vty 0 4
+msk-donskaya-aabogatkina-sw-3(config-line)#password cisco
+msk-donskaya-aabogatkina-sw-3(config-line)#login
+msk-donskaya-aabogatkina-sw-3(config-line)#exit
+msk-donskaya-aabogatkina-sw-3(config)#line console 0
+msk-donskaya-aabogatkina-sw-3(config-line)#password cisco
+msk-donskaya-aabogatkina-sw-3(config-line)#login
+msk-donskaya-aabogatkina-sw-3(config-line)#exit
+msk-donskaya-aabogatkina-sw-3(config)#enable secret cisco
+msk-donskaya-aabogatkina-sw-3(config)#service password-encryption
+msk-donskaya-aabogatkina-sw-3(config)#username admin privilege 1 secret cisco
+msk-donskaya-aabogatkina-sw-3(config)#ip domain-name donskaya.rudn.edu
+msk-donskaya-aabogatkina-sw-3(config)#crypto key generate rsa
+msk-donskaya-aabogatkina-sw-3(config)#line vty 0 4
+msk-donskaya-aabogatkina-sw-3(config-line)#transport input ssh
+msk-donskaya-aabogatkina-sw-3(config-line)#exit
+msk-donskaya-aabogatkina-sw-3(config)#exit
+msk-donskaya-aabogatkina-sw-3#write memory
+```
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-3 (1)](image/3-1.png){#fig-014 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-3 (2)](image/3-2.png){#fig-015 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-3 (3)](image/3-3.png){#fig-016 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-3 (4)](image/3-4.png){#fig-017 width=70%}
+
+![Просмотр конфигурации коммутатора msk-donskaya-aabogatkina-sw-3 (1)](image/3-5.png){#fig-018 width=70%}
+
+![Просмотр конфигурации коммутатора msk-donskaya-aabogatkina-sw-3 (2)](image/3-6.png){#fig-019 width=70%}
+
+Провели настройку коммутатора msk-donskaya-aabogatkina-sw-4 ([рис. @fig-020]), ([рис. @fig-021]), ([рис. @fig-022]), ([рис. @fig-023]), ([рис. @fig-024]), ([рис. @fig-025]): 
+
+```
+Switch>enable
+Switch#configure terminal
+Switch(config)#hostname msk-donskaya-aabogatkina-sw-4
+msk-donskaya-aabogatkina-sw-4(config)#interface vlan2
+msk-donskaya-aabogatkina-sw-4(config-if)#no shutdown
+msk-donskaya-aabogatkina-sw-4(config-if)#ip address 10.128.1.5 255.255.255.0
+msk-donskaya-aabogatkina-sw-4(config-if)#exit
+msk-donskaya-aabogatkina-sw-4(config)#ip default-gateway 10.128.1.1
+msk-donskaya-aabogatkina-sw-4(config)#line vty 0 4
+msk-donskaya-aabogatkina-sw-4(config-line)#password cisco
+msk-donskaya-aabogatkina-sw-4(config-line)#login
+msk-donskaya-aabogatkina-sw-4(config-line)#exit
+msk-donskaya-aabogatkina-sw-4(config)#line console 0
+msk-donskaya-aabogatkina-sw-4(config-line)#password cisco
+msk-donskaya-aabogatkina-sw-4(config-line)#login
+msk-donskaya-aabogatkina-sw-4(config-line)#exit
+msk-donskaya-aabogatkina-sw-4(config)#enable secret cisco
+msk-donskaya-aabogatkina-sw-4(config)#service password-encryption
+msk-donskaya-aabogatkina-sw-4(config)#username admin privilege 1 secret cisco
+msk-donskaya-aabogatkina-sw-4(config)#ip domain-name donskaya.rudn.edu
+msk-donskaya-aabogatkina-sw-4(config)#crypto key generate rsa
+msk-donskaya-aabogatkina-sw-4(config)#line vty 0 4
+msk-donskaya-aabogatkina-sw-4(config-line)#transport input ssh
+msk-donskaya-aabogatkina-sw-4(config-line)#exit
+msk-donskaya-aabogatkina-sw-4(config)#exit
+msk-donskaya-aabogatkina-sw-4#write memory
+```
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-4 (1)](image/4-1.png){#fig-020 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-4 (2)](image/4-2.png){#fig-021 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-4 (3)](image/4-3.png){#fig-022 width=70%}
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-4 (4)](image/4-4.png){#fig-023 width=70%}
+
+![Просмотр конфигурации коммутатора msk-donskaya-aabogatkina-sw-4 (1)](image/4-5.png){#fig-024 width=70%}
+
+![Просмотр конфигурации коммутатора msk-donskaya-aabogatkina-sw-4 (2)](image/4-6.png){#fig-025 width=70%}
+
+Провели настройку коммутатора msk-pavlovskaya-aabogatkina-sw-1 ([рис. @fig-026]), ([рис. @fig-027]), ([рис. @fig-028]), ([рис. @fig-029]), ([рис. @fig-030]), ([рис. @fig-031]): 
+
+```
+Switch>enable
+Switch#configure terminal
+Switch(config)#hostname msk-pavlovskaya-aabogatkina-sw-1
+msk-pavlovskaya-aabogatkina-sw-1(config)#interface vlan2
+msk-pavlovskaya-aabogatkina-sw-1(config-if)#no shutdown
+msk-pavlovskaya-aabogatkina-sw-1(config-if)#ip address 10.128.1.6 255.255.255.0
+msk-pavlovskaya-aabogatkina-sw-1(config-if)#exit
+msk-pavlovskaya-aabogatkina-sw-1(config)#ip default-gateway 10.128.1.1
+msk-pavlovskaya-aabogatkina-sw-1(config)#line vty 0 4
+msk-pavlovskaya-aabogatkina-sw-1(config-line)#password cisco
+msk-pavlovskaya-aabogatkina-sw-1(config-line)#login
+msk-pavlovskaya-aabogatkina-sw-1(config-line)#exit
+msk-pavlovskaya-aabogatkina-sw-1(config)#line console 0
+msk-pavlovskaya-aabogatkina-sw-1(config-line)#password cisco
+msk-pavlovskaya-aabogatkina-sw-1(config-line)#login
+msk-pavlovskaya-aabogatkina-sw-1(config-line)#exit
+msk-pavlovskaya-aabogatkina-sw-1(config)#enable secret cisco
+msk-pavlovskaya-aabogatkina-sw-1(config)#service password-encryption
+msk-pavlovskaya-aabogatkina-sw-1(config)#username admin privilege 1 secret cisco
+msk-pavlovskaya-aabogatkina-sw-1(config)#ip domain-name pavlovskaya.rudn.edu
+msk-pavlovskaya-aabogatkina-sw-1(config)#crypto key generate rsa
+msk-pavlovskaya-aabogatkina-sw-1(config)#line vty 0 4
+msk-pavlovskaya-aabogatkina-sw-1(config-line)#transport input ssh
+msk-pavlovskaya-aabogatkina-sw-1(config-line)#exit
+msk-pavlovskaya-aabogatkina-sw-1(config)#exit
+msk-pavlovskaya-aabogatkina-sw-1#write memory
+```
+
+![Настройка коммутатора msk-pavlovskaya-aabogatkina-sw-1 (1)](image/5-1.png){#fig-026 width=70%}
+
+![Настройка коммутатора msk-pavlovskaya-aabogatkina-sw-1 (2)](image/5-2.png){#fig-027 width=70%}
+
+![Настройка коммутатора msk-pavlovskaya-aabogatkina-sw-1 (3)](image/5-3.png){#fig-028 width=70%}
+
+![Настройка коммутатора msk-pavlovskaya-aabogatkina-sw-1 (4)](image/5-4.png){#fig-029 width=70%}
+
+![Просмотр конфигурации коммутатора msk-pavlovskaya-aabogatkina-sw-1 (1)](image/5-5.png){#fig-030 width=70%}
+
+![Просмотр конфигурации коммутатора msk-pavlovskaya-aabogatkina-sw-1 (2)](image/5-6.png){#fig-031 width=70%}
+
+## Контрольные вопросы + ответы
+
+1. При помощи каких команд можно посмотреть конфигурацию сетевого оборудования?
+
+show running-config
+
+2. При помощи каких команд можно посмотреть стартовый конфигурационный файл оборудования?
+
+show startup-config
+
+3. При помощи каких команд можно экспортировать конфигурационный файл оборудования?
+
+copy running-config startup-config или copy running-config flash
+
+4. При помощи каких команд можно импортировать конфигурационный файл оборудования?
+
+copy startup-config running-config
+
+# Выводы
+
+В ходе выполнения лабораторной работы №4 мы провели подготовительную работу по первоначальной настройке коммутаторов сети
+
+# Список литературы
+
+1. [Лаборатораня работа №4](https://esystem.rudn.ru/pluginfile.php/3093886/mod_resource/content/4/004-net-config.pdf)
