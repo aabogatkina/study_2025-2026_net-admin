@@ -1,0 +1,155 @@
+---
+## Author
+author:
+  name:  Богаткина Алёна Александровна 
+  degrees: DSc
+  orcid: 0000-0002-0877-7063
+  email: kulyabov-ds@rudn.ru
+  affiliation:
+    - name: Российский университет дружбы народов
+      country: Российская Федерация
+      postal-code: 117198
+      city: Москва
+      address: ул. Миклухо-Маклая, д. 6
+
+## Title
+title: Отчет по Лабораторной работе №6
+subtitle: Администрирование Локальных Сетей 
+license: "CC BY"
+---
+
+# Цель работы
+
+Настроить статическую маршрутизацию VLAN в сети.
+
+# Задание
+
+1. Добавить в локальную сеть маршрутизатор, провести его первоначальную настройку.
+2. Настроить статическую маршрутизацию VLAN.
+3. При выполнении работы необходимо учитывать соглашение об именовании.
+
+# Выполнение лабораторной работы
+
+## Добавление маршрутизатора
+
+В логической области проекта разместили маршрутизатор Cisco 2811 (msk-donskaya-aabogatkina-gw-1), подключили его к порту 24 коммутатора msk-donskaya-aabogatkina-sw-1 в соответствии с таблицей портов (см. табл. 3.3 из лабораторной работы №3) ([рис. @fig-001])
+
+![Добавление маршрутизатора msk-donskaya-aabogatkina-gw-1](image/1.png){#fig-001 width=70%}
+
+## Настройка маршрутизатора
+
+Используя приведённую в лабораторной работе последовательность команд по первоначальной настройке маршрутизатора, сконфигурировали маршрутизатор, задав на нём имя, пароль для доступа к консоли, настроили удалённое подключение к нему по ssh ([рис. @fig-002]): 
+
+```
+Router >enable
+Router#configure terminal
+Router(config)#hostname msk−donskaya-aabogatkina-gw−1
+msk−donskaya-aabogatkina-gw−1(config)#line vty 0 4
+msk−donskaya-aabogatkina-gw−1(config-line)#password cisco
+msk−donskaya-aabogatkina-gw−1(config-line)#login
+msk−donskaya-aabogatkina-gw−1(config-line)#exit
+msk−donskaya-aabogatkina-gw−1(config)#line console 0
+msk−donskaya-aabogatkina-gw−1(config-line)#password cisco
+msk−donskaya-aabogatkina-gw−1(config-line)#login
+msk−donskaya-aabogatkina-gw−1(config-line)#exit
+msk−donskaya-aabogatkina-gw−1(config)#enable secret cisco
+msk−donskaya-aabogatkina-gw−1(config)#service password-encryption
+msk−donskaya-aabogatkina-gw−1(config)#username admin privilege 1 secret cisco
+msk−donskaya-aabogatkina-gw−1(config)#ip domain-name donskaya.rudn.edu
+msk−donskaya-aabogatkina-gw−1(config)#crypto key generate rsa
+msk−donskaya-aabogatkina-gw−1(config)#line vty 0 4
+msk−donskaya-aabogatkina-gw−1(config-line)#transport input ssh
+```
+
+![Первичная конфигурация маршрутизатора msk-donskaya-aabogatkina-gw-1](image/2.png){#fig-002 width=70%}
+
+Настроили порт 24 коммутатора msk−donskaya-aabogatkina-sw−1 как trunk-порт ([рис. @fig-003]): 
+
+```
+msk−donskaya-aabogatkina-sw−1>enable
+msk−donskaya-aabogatkina-sw−1#configure terminal
+msk−donskaya-aabogatkina-sw−1(config)#interface f0/24
+msk−donskaya-aabogatkina-sw−1(config-if)#switchport mode trunk
+```
+
+![Настройка порта 24 как trunk-порта на коммутаторе msk-donskaya-aabogatkina-sw-1](image/3.png){#fig-003 width=70%}
+
+На интерфейсе f0/0 маршрутизатора msk−donskaya-aabogatkina-gw−1 настроили виртуальные интерфейсы, соответствующие номерам VLAN. Согласно таблице IP-адресов (см. табл. 3.2 из лабораторной работы №3) задали соответствующие IP-адреса на виртуальных интерфейсах. Для этого использовали приведённую в лабораторной работе последовательность команд по конфигурации VLAN-интерфейсов маршрутизатора ([рис. @fig-004]), ([рис. @fig-005]), ([рис. @fig-006]), ([рис. @fig-007]): 
+
+```
+msk−donskaya-aabogatkina-gw−1>enable
+msk−donskaya-aabogatkina-gw−1#configure terminal
+msk−donskaya-aabogatkina-gw−1(config)#interface f0/0
+msk−donskaya-aabogatkina-gw−1(config-if)#no shutdown
+msk−donskaya-aabogatkina-gw−1(config)#interface f0/0.2
+msk−donskaya-aabogatkina-gw−1(config-subif)#encapsulation dot1Q 2
+msk−donskaya-aabogatkina-gw−1(config-subif)#ip address 10.128.1.1 255.255.255.0
+msk−donskaya-aabogatkina-gw−1(config-subif)#description management
+msk−donskaya-aabogatkina-gw−1(config-subif)#exit
+msk−donskaya-aabogatkina-gw−1(config)#interface f0/0.3
+msk−donskaya-aabogatkina-gw−1(config-subif)#encapsulation dot1Q 3
+msk−donskaya-aabogatkina-gw−1(config-subif)#ip address 10.128.0.1 255.255.255.0
+msk−donskaya-aabogatkina-gw−1(config-subif)#description servers
+msk−donskaya-aabogatkina-gw−1(config-subif)#exit
+msk−donskaya-aabogatkina-gw−1(config-subif)#interface f0/0.101
+msk−donskaya-aabogatkina-gw−1(config-subif)#encapsulation dot1Q 101
+msk−donskaya-aabogatkina-gw−1(config-subif)#ip address 10.128.3.1 255.255.255.0
+msk−donskaya-aabogatkina-gw−1(config-subif)#description dk
+msk−donskaya-aabogatkina-gw−1(config-subif)#exit
+msk−donskaya-aabogatkina-gw−1(config-subif)#interface f0/0.102
+msk−donskaya-aabogatkina-gw−1(config-subif)#encapsulation dot1Q 102
+msk−donskaya-aabogatkina-gw−1(config-subif)#ip address 10.128.4.1 255.255.255.0
+msk−donskaya-aabogatkina-gw−1(config-subif)#description departments
+msk−donskaya-aabogatkina-gw−1(config-subif)#exit
+msk−donskaya-aabogatkina-gw−1(config-subif)#interface f0/0.103
+msk−donskaya-aabogatkina-gw−1(config-subif)#encapsulation dot1Q 103
+msk−donskaya-aabogatkina-gw−1(config-subif)#ip address 10.128.5.1 255.255.255.0
+msk−donskaya-aabogatkina-gw−1(config-subif)#description adm
+msk−donskaya-aabogatkina-gw−1(config-subif)#exit
+msk−donskaya-aabogatkina-gw−1(config-subif)#interface f0/0.104
+msk−donskaya-aabogatkina-gw−1(config-subif)#encapsulation dot1Q 104
+msk−donskaya-aabogatkina-gw−1(config-subif)#ip address 10.128.6.1 255.255.255.0
+msk−donskaya-aabogatkina-gw−1(config-subif)#description other
+```
+
+![Конфигурация VLAN-интерфейсов маршрутизатора msk-donskaya-aabogatkina-gw-1 (1)](image/4.png){#fig-004 width=70%}
+
+![Конфигурация VLAN-интерфейсов маршрутизатора msk-donskaya-aabogatkina-gw-1 (2)](image/5.png){#fig-005 width=70%}
+
+![Конфигурация VLAN-интерфейсов маршрутизатора msk-donskaya-aabogatkina-gw-1 (3)](image/6.png){#fig-006 width=70%}
+
+![Конфигурация VLAN-интерфейсов маршрутизатора msk-donskaya-aabogatkina-gw-1 (4)](image/7.png){#fig-007 width=70%}
+
+## Проверка устройств
+
+Проверили доступность оконечных устройств из разных VLAN. Пропинговали с dep-donskaya-aabogatkina-1 dk-pavlovskaya-aabogatkina-1. Пакеты успешно дошли ([рис. @fig-008])
+
+![Проверка доступности устройств, принадлежащих разным VLAN](image/9.png){#fig-008 width=70%}
+
+Используя режим симуляции в Packet Tracer, изучили процесс передвижения пакета ICMP по сети ([рис. @fig-009])
+
+![Изучение передвижения ICMP пакета (устройства относящиеся к разным VLAN)](image/10.png){#fig-009 width=70%}
+
+Также изучили содержимое передаваемого пакета и заголовки задействованных протоколов ([рис. @fig-010]), ([рис. @fig-011])
+
+![Информация о PDU: уровень OSI](image/11.png){#fig-010 width=70%}
+
+![Информация о PDU: формат пакета ICMP](image/12.png){#fig-011 width=70%}
+
+## Контрольные вопросы + ответы
+
+1. Охарактеризуйте стандарт IEEE 802.1Q.
+
+открытый стандарт, который описывает процедуру тегирования трафика для передачи информации о принадлежности к VLAN по сетям стандарта IEEE 802.3 Ethernet
+
+2. Опишите формат кадра IEEE 802.1Q.
+
+добавляет 32-битное поле между MAC-адресом источника и полями EtherType исходного кадра. В соответствии с 802.1Q минимальный размер кадра остается 64 байта, но мост может увеличить минимальный размер кадра с 64 до 68 байтов при передаче IEEE 802.1Q
+
+# Выводы
+
+В ходе выполнения лабораторной работы №6 мы настроили статическую маршрутизацию VLAN в сети
+
+# Список литературы
+
+1. [Лабораторная работа №6](https://esystem.rudn.ru/pluginfile.php/3093896/mod_resource/content/4/006-static-routing-vlan.pdf)
