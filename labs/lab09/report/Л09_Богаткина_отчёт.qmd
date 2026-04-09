@@ -1,0 +1,233 @@
+---
+## Author
+author:
+  name:  Богаткина Алёна Александровна 
+  degrees: DSc
+  orcid: 0000-0002-0877-7063
+  email: kulyabov-ds@rudn.ru
+  affiliation:
+    - name: Российский университет дружбы народов
+      country: Российская Федерация
+      postal-code: 117198
+      city: Москва
+      address: ул. Миклухо-Маклая, д. 6
+
+## Title
+title: Отчет по Лабораторной работе №9
+subtitle: Администрирование Локальных Сетей 
+license: "CC BY"
+---
+
+# Цель работы
+
+Цель данной работы - изучить возможности протокола STP и его модификации по обеспечению
+отказоустойчивости сети, агрегированию интерфейсов и перераспределению нагрузки между ними
+
+# Задание
+
+1. Сформировать резервное соединение между коммутаторами msk-donskaya-aabogatkina-sw-1 и msk-donskaya-aabogatkina-sw-3
+2. Настроить балансировку нагрузки между резервными соединениями
+3. Настроить режим Portfast на тех интерфейсах коммутаторов, к которым подключены серверы
+4. Изучить отказоустойчивость резервного соединения
+5. Сформировать и настроить агрегированное соединение интерфейсов Fa0/20 - Fa0/23 между коммутаторами msk-donskaya-aabogatkina-sw-1 и msk-donskaya-aabogatkina-sw-4
+
+# Выполнение лабораторной работы
+
+Сформировали резервное соединение между коммутаторами msk-donskaya-aabogatkina-sw-1 и msk-donskaya-aabogatkina-sw-3. Для этого сначала заменили соединение между коммутаторами msk-donskaya-aabogatkina-sw-1 (Gig0/2) и msk-donskaya-aabogatkina-sw-4 (Gig0/1) на соединение между коммутаторами msk-donskaya-aabogatkina-sw-1 (Gig0/2) и msk-donskaya-aabogatkina-sw-3 (Gig0/2) ([рис. @fig-001])
+
+![Соединение между коммутаторами msk-donskaya-aabogatkina-sw-1 (Gig0/2) и msk-donskaya-aabogatkina-sw-3 (Gig0/2)](image/1.png){#fig-001 width=70%}
+
+Сделали порт на интерфейсе Gig0/2 коммутатора msk-donskaya-aabogatkina-sw-3 транковым ([рис. @fig-002]):
+
+```
+msk−donskaya-aabogatkina-sw−3(config)#int g0/2
+msk−donskaya-aabogatkina-sw−3(config-if)#switchport mode trunk
+```
+
+![Настройка порта на интерфейсе Gig0/2 коммутатора msk-donskaya-aabogatkina-sw-3 как транковый](image/2.png){#fig-002 width=70%}
+
+Соединение между коммутаторами msk-donskaya-aabogatkina-sw-1 и msk-donskaya-aabogatkina-sw-4 сдеали через интерфейсы Fa0/23 ([рис. @fig-003])
+
+![Соединение между коммутаторами msk-donskaya-aabogatkina-sw-1 (Fa0/23) и msk-donskaya-aabogatkina-sw-4 (Fa0/23)](image/3.png){#fig-003 width=70%}
+
+Активировали эти порты в транковом режиме ([рис. @fig-004]), ([рис. @fig-005])
+
+![Настройка порта на интерфейсе Fa0/23 коммутатора msk-donskaya-aabogatkina-sw-1 как транковый](image/4.png){#fig-004 width=70%}
+
+![Настройка порта на интерфейсе Fa0/23 коммутатора msk-donskaya-aabogatkina-sw-4 как транковый](image/5.png){#fig-005 width=70%}
+
+С оконечного устройства dk-donskaya-aabogatkina-1 пропинговали серверы mail и web. Пинг проходит успешно и до mail, и до web ([рис. @fig-006]), ([рис. @fig-007])
+
+![Пинг с dk-donskaya-aabogatkina-1 к web](image/6.png){#fig-006 width=70%}
+
+![Пинг с dk-donskaya-aabogatkina-1 к mail](image/7.png){#fig-007 width=70%}
+
+Далее в режиме симуляции проследили движение пакетов ICMP. Убедились, что движение пакетов происходит через коммутатор msk-donskaya-aabogatkina-sw-2 ([рис. @fig-008]), ([рис. @fig-009])
+
+![Движение ICMP пакета с dk-donskaya-aabogatkina-1 к web (через msk-donskaya-aabogatkina-sw-2)](image/8.png){#fig-008 width=70%}
+
+![Движение ICMP пакета с dk-donskaya-aabogatkina-1 к mail (через msk-donskaya-aabogatkina-sw-2)](image/9.png){#fig-009 width=70%}
+
+На коммутаторе msk-donskaya-aabogatkina-sw-2 посмотрели состояние протокола STP для vlan 3 ([рис. @fig-010]):
+
+```
+msk−donskaya-aabogatkina-sw-2#show spanning-tree vlan 3
+```
+
+![Состояние протокола STP для vlan 3 на коммутаторе msk-donskaya-aabogatkina-sw-2](image/10.png){#fig-010 width=70%}
+
+Здесь указывается, что данное устройство является корневым (строка This bridge is the root)
+
+В качестве корневого коммутатора STP настроили коммутатор msk-donskaya-aabogatkina-sw-1 ([рис. @fig-011]): 
+
+```
+msk−donskaya-aabogatkina-sw-1#configure terminal
+msk−donskaya-aabogatkina-sw-1(config)#spanning-tree vlan 3 root primary
+```
+
+![Настройка коммутатора msk-donskaya-aabogatkina-sw-1 как корневого](image/11.png){#fig-011 width=70%}
+
+Далее используя режим симуляции, убедились, что пакеты ICMP пойдут от хоста dk-donskaya-aabogatkina-1 до mail через коммутаторы msk-donskaya-sw-aabogatkina-1 и msk-donskaya-aabogatkina-sw-3, а от хоста dk-donskaya-aabogatkina-1 до web через коммутаторы msk-donskaya-aabogatkina-sw-1 и msk-donskaya-aabogatkina-sw-2 ([рис. @fig-012]), ([рис. @fig-013])
+
+![Движение ICMP пакета с dk-donskaya-aabogatkina-1 к mail (через msk-donskaya-aabogatkina-sw-3)](image/12.png){#fig-012 width=70%}
+
+![Движение ICMP пакета с dk-donskaya-aabogatkina-1 к web (через msk-donskaya-aabogatkina-sw-2)](image/13.png){#fig-013 width=70%}
+
+Далее настроили режим Portfast на тех интерфейсах коммутаторов, к которым подключены серверы.
+
+Для msk-donskaya-aabogatkina-sw-2 ([рис. @fig-014]): 
+
+```
+msk−donskaya-aabogatkina-sw-2(config)#interface f0/1
+msk−donskaya-aabogatkina-sw-2(config-if)#spanning-tree portfast
+msk−donskaya-aabogatkina-sw-2(config-if)#exit
+msk−donskaya-aabogatkina-sw-2(config)#interface f0/2
+msk−donskaya-aabogatkina-sw-2(config-if)#spanning-tree portfast
+```
+
+![Настройка режима Portfast на интерфейсах коммутатора msk−donskaya-aabogatkina-sw-2](image/14.png){#fig-014 width=70%}
+
+Для msk-donskaya-aabogatkina-sw-3 ([рис. @fig-019]): 
+
+```
+msk−donskaya-aabogatkina-sw-3(config)#interface f0/1
+msk−donskaya-aabogatkina-sw-3(config-if)#spanning-tree portfast
+msk−donskaya-aabogatkina-sw-3(config-if)#exit
+msk−donskaya-aabogatkina-sw-3(config)#interface f0/2
+msk−donskaya-aabogatkina-sw-3(config-if)#spanning-tree portfast
+```
+
+![Настройка режима Portfast на интерфейсах коммутатора msk−donskaya-aabogatkina-sw-3](image/15.png){#fig-015 width=70%}
+
+Далее изучили отказоустойчивость протокола STP и время восстановления соединения при переключении на резервное соединение. Для этого использовали команду ```ping -n 1000 mail.donskaya.rudn.ru``` на хосте dk-donskaya-aabogatkina-1, а разрыв соединения обеспечили переводом соответствующего интерфейса коммутатора в состояние shutdown ([рис. @fig-016])
+
+![Отказоустойчивость протокола STP](image/16.png){#fig-016 width=70%}
+
+На время восстановления соединения потребовалось 5 пингов. После восстановления соединения пингование продолжилось
+
+Переключили коммутаторы в режим работы по протоколу Rapid PVST+ ([рис. @fig-017]), ([рис. @fig-018]), ([рис. @fig-019]), ([рис. @fig-020]), ([рис. @fig-021]):
+
+```
+msk−donskaya-aabogatkina-sw-1(config)#spanning-tree mode rapid-pvst
+msk−donskaya-aabogatkina-sw-2(config)#spanning-tree mode rapid-pvst
+msk−donskaya-aabogatkina-sw-3(config)#spanning-tree mode rapid-pvst
+msk−donskaya-aabogatkina-sw-4(config)#spanning-tree mode rapid-pvst
+msk−pavlovskaya-aabogatkina-sw-1(config)#spanning-tree mode rapid-pvst
+```
+
+![Переключение коммутатора msk−donskaya-aabogatkina-sw-1 в режим работы по протоколу Rapid PVST+](image/17.png){#fig-017 width=70%}
+
+![Переключение коммутатора msk−donskaya-aabogatkina-sw-2 в режим работы по протоколу Rapid PVST+](image/18.png){#fig-018 width=70%}
+
+![Переключение коммутатора msk−donskaya-aabogatkina-sw-3 в режим работы по протоколу Rapid PVST+](image/19.png){#fig-019 width=70%}
+
+![Переключение коммутатора msk−donskaya-aabogatkina-sw-4 в режим работы по протоколу Rapid PVST+](image/20.png){#fig-020 width=70%}
+
+![Переключение коммутатора msk−pavlovskaya-aabogatkina-sw-1 в режим работы по протоколу Rapid PVST+](image/21.png){#fig-021 width=70%}
+
+Изучили отказоустойчивость протокола Rapid PVST+ и время восстановления соединения при переключении на резервное соединение ([рис. @fig-022])
+
+![Отказоустойчивость протокола Rapid PVST+](image/22.png){#fig-022 width=70%}
+
+После разрыва соединения задержки по аремени не было, сеть моментально перестроилась. Когда вернули обратно старое соединение потребовался всего 1 пинг. После восстановления соединения пингование продолжилось
+
+Далее сформировали агрегированное соединение интерфейсов Fa0/20 - Fa0/23 между коммутаторами msk-donskaya-aabogatkina-sw-1 и msk-donskaya-aabogatkina-sw-4 ([рис. @fig-023])
+
+![Логическая схема локальной сети с агрегированным соединением](image/23.png){#fig-023 width=70%}
+
+Настроили агрегирование каналов (режим EtherChannel).
+
+Для msk-donskaya-aabogatkina-sw-1 ([рис. @fig-024]): 
+
+```
+msk−donskaya-aabogatkina-sw-1(config)#interface range f0/20 - 23
+msk−donskaya-aabogatkina-sw-2(config-if-range)#channel-group 1 mode on
+msk−donskaya-aabogatkina-sw-2(config-if-range)#exit
+msk−donskaya-aabogatkina-sw-4(config)#interface port-channel 1
+msk−donskaya-aabogatkina-sw-1(config-if)#switchport mode trunk
+```
+
+![Настройка агрегирования каналов на коммутаторе msk−donskaya-aabogatkina-sw-1](image/24.png){#fig-024 width=70%}
+
+Для msk-donskaya-aabogatkina-sw-4 ([рис. @fig-025]): 
+
+```
+msk−donskaya-aabogatkina-sw-4(config)#int range f0/20 - 23
+msk−donskaya-aabogatkina-sw-4(config-if-range)#no switchport access vlan 104
+msk−donskaya-aabogatkina-sw-4(config-if-range)#exit
+msk−donskaya-aabogatkina-sw-4(config)#interface range f0/20 - 23
+msk−donskaya-aabogatkina-sw-1(config-if-range)#channel-group 1 mode on
+msk−donskaya-aabogatkina-sw-4(config-if-range)#exit
+msk−donskaya-aabogatkina-sw-4(config)#interface port-channel 1
+msk−donskaya-aabogatkina-sw-4(config-if)#switchport mode trunk
+```
+
+![Настройка агрегирования каналов на коммутаторе msk−donskaya-aabogatkina-sw-4](image/25.png){#fig-025 width=70%}
+
+## Контрольные вопросы + ответы
+
+1. Какую информацию можно получить, воспользовавшись командой определения состояния протокола STP для VLAN (на корневом и не на корневом устройстве)? Приведите примеры вывода подобной информации на устройствах
+
+VLAN... // Номер VLAN
+
+STP... // Тип протокола
+
+Root ID/Bridge ID // Ближайший коммутатор/Текущий коммутатор
+
+Priority... // Приоритет
+
+Address... // MAC-адрес
+
+Cost... // «Затраты» до этого коммутатора
+
+Port... // Порт
+
+Hello Time... Max Age... Forward Delay... Aging Time... // Время работы STP // Свойства портов
+
+2. При помощи какой команды можно узнать, в каком режиме, STP или Rapid PVST+, работает устройство? Приведите примеры вывода подобной информации на устройствах
+
+sh ru
+
+3. Для чего и в каких случаях нужно настраивать режим Portfast?
+
+Он позволяет сразу включать выделенные порты, поскольку они не подключены к коммутаторам и не участвуют во включении STP
+
+4. В чем состоит принцип работы агрегированного интерфейса? Для чего он используется?
+
+Он объединяет параллельные каналы для увеличения пропускной способности, а также не теряет соединение при обрыве одного из каналов, перенаправляя трафик
+
+5. В чём принципиальные отличия при использовании протоколов LACP (Link Aggregation Control Protocol), PAgP (Port Aggregation Protocol) и статического агрегирования без использования протоколов?
+
+LACP общий стандарт IEEE, PAgP - локальный протокол Cisco. Для них обязательна настройка сторон (активная, пассивная, авто). При статическом агрегировании коммутатор обрабатывает данные как с магистрали, даже если она не настроена на другой стороне
+
+6. При помощи каких команд можно узнать состояние агрегированного канала EtherChannel?
+
+show etherchannel
+
+# Выводы
+
+В ходе выполнения лабораторной работы №9 мы изучили возможности протокола STP и его модификации по обеспечению отказоустойчивости сети, агрегированию интерфейсов и перераспределению нагрузки между ними
+
+# Список литературы
+
+1. [Лабораторная работа №9](https://esystem.rudn.ru/pluginfile.php/3093909/mod_resource/content/4/009-stp.pdf)
